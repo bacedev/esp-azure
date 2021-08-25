@@ -131,6 +131,7 @@ component_compile_options (
 	-Wno-unused-function
 	-Wno-missing-braces
 	-Wno-missing-field-initializers
+	-Wno-unused-variable
 	)
 
 component_compile_definitions (

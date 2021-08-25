@@ -1,0 +1,8 @@
+menu "esp-azure"
+
+    config ESP_AZURE_USE_SECURE_ELEMENT
+        bool "Enable use secure element for TLS"
+        help
+            Enable use secure element for TLS, depends on esp-cryptoauthlib
+
+endmenu # esp-azure

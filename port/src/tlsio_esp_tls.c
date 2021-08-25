@@ -316,10 +316,16 @@ static int tlsio_esp_tls_open_async(CONCRETE_IO_HANDLE tls_io,
 
                         tls_io_instance->esp_tls_cfg.non_block = true;
                         if (tls_io_instance->options.x509_key != NULL && tls_io_instance->options.x509_cert != NULL) {
+#if CONFIG_ESP_AZURE_USE_SECURE_ELEMENT
+                            tls_io_instance->esp_tls_cfg.use_secure_element = true;
+#endif /* CONFIG_ESP_AZURE_USE_SECURE_ELEMENT */
                             tls_io_instance->esp_tls_cfg.clientcert_pem_buf = (unsigned char *)tls_io_instance->options.x509_cert;
                             tls_io_instance->esp_tls_cfg.clientcert_pem_bytes = strlen(tls_io_instance->options.x509_cert) + 1;
+#if !CONFIG_ESP_AZURE_USE_SECURE_ELEMENT
                             tls_io_instance->esp_tls_cfg.clientkey_pem_buf = (unsigned char *)tls_io_instance->options.x509_key;
                             tls_io_instance->esp_tls_cfg.clientkey_pem_bytes = strlen(tls_io_instance->options.x509_key) + 1;
+#endif /* !CONFIG_ESP_AZURE_USE_SECURE_ELEMENT */
+
                         }
                         if (tls_io_instance->options.trusted_certs != NULL) {
                             tls_io_instance->esp_tls_cfg.cacert_pem_buf = (unsigned char *)tls_io_instance->options.trusted_certs;
