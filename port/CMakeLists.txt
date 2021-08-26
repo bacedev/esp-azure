@@ -24,6 +24,7 @@ set (COMPONENT_ADD_INCLUDEDIRS
 	)
 
 set (COMPONENT_SRCS
+	"src/azure_certificates.c"
 	"src/agenttime_esp.c"
 	"src/platform_esp.c"
 	"src/tlsio_esp_tls.c"
