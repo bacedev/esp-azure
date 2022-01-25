@@ -166,4 +166,5 @@ ifdef CONFIG_DEVICE_COMMON_NAME
 CFLAGS += -DUSE_PROV_MODULE
 endif
 
+azure-iot-sdk-c/serializer/src/agenttypesystem.o: CFLAGS+=-Wno-maybe-uninitialized
 azure-iot-sdk-c/iothub_client/src/iothubtransport_mqtt_common.o: CFLAGS+=-Wno-maybe-uninitialized
