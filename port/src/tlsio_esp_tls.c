@@ -22,6 +22,12 @@
 
 #include "esp_tls.h"
 
+#if CONFIG_ESP_AZURE_USE_SECURE_ELEMENT && (ESP_IDF_VERSION < ESP_IDF_VERSION_VAL(4, 0, 0))
+#include <cryptoauthlib.h>
+#include <mbedtls/atca_mbedtls_wrap.h>
+#include "secure_element.h"
+#endif
+
 typedef struct
 {
     unsigned char* bytes;
@@ -303,7 +309,38 @@ static int tlsio_esp_tls_open_async(CONCRETE_IO_HANDLE tls_io,
                     }
                     else
                     {
+#if CONFIG_ESP_AZURE_USE_SECURE_ELEMENT && (ESP_IDF_VERSION < ESP_IDF_VERSION_VAL(4, 0, 0))
+                        // Note: modified here to pass ATECC608 context as private key
+                        mbedtls_pk_context pkey;
+                        if (atca_mbedtls_pk_init(&pkey, IOT_SECURE_ELEMENT_KID) != 0) {
+                            LogError("Failed to get key from ATCA device.");
+                            result = MU_FAILURE;
+                        } else {
+                            /* Codes_SRS_TLSIO_30_034: [ The tlsio_open shall store the provided on_bytes_received, on_bytes_received_context, on_io_error, on_io_error_context, on_io_open_complete, and on_io_open_complete_context parameters for later use as specified and tested per other line entries in this document. ]*/
+                            tls_io_instance->on_bytes_received = on_bytes_received;
+                            tls_io_instance->on_bytes_received_context = on_bytes_received_context;
 
+                            tls_io_instance->on_io_error = on_io_error;
+                            tls_io_instance->on_io_error_context = on_io_error_context;
+
+                            tls_io_instance->on_open_complete = on_io_open_complete;
+                            tls_io_instance->on_open_complete_context = on_io_open_complete_context;
+
+                            tls_io_instance->esp_tls_cfg.non_block = true;
+                            if (tls_io_instance->options.x509_cert != NULL) {
+                                tls_io_instance->esp_tls_cfg.clientcert_pem_buf = (unsigned char *)tls_io_instance->options.x509_cert;
+                                tls_io_instance->esp_tls_cfg.clientcert_pem_bytes = strlen(tls_io_instance->options.x509_cert) + 1;
+                                tls_io_instance->esp_tls_cfg.clientkey = pkey;
+                            }
+                            if (tls_io_instance->options.trusted_certs != NULL) {
+                                tls_io_instance->esp_tls_cfg.cacert_pem_buf = (unsigned char *)tls_io_instance->options.trusted_certs;
+                                tls_io_instance->esp_tls_cfg.cacert_pem_bytes = strlen(tls_io_instance->options.trusted_certs) + 1;
+                            }
+
+                            tls_io_instance->tlsio_state = TLSIO_STATE_INIT;
+                            result = 0;
+                        }
+#else /* !CONFIG_ESP_AZURE_USE_SECURE_ELEMENT || (ESP_IDF_VERSION > ESP_IDF_VERSION_VAL(4, 0, 0)) */
                         /* Codes_SRS_TLSIO_30_034: [ The tlsio_open shall store the provided on_bytes_received, on_bytes_received_context, on_io_error, on_io_error_context, on_io_open_complete, and on_io_open_complete_context parameters for later use as specified and tested per other line entries in this document. ]*/
                         tls_io_instance->on_bytes_received = on_bytes_received;
                         tls_io_instance->on_bytes_received_context = on_bytes_received_context;
@@ -316,7 +353,7 @@ static int tlsio_esp_tls_open_async(CONCRETE_IO_HANDLE tls_io,
 
                         tls_io_instance->esp_tls_cfg.non_block = true;
                         if (tls_io_instance->options.x509_key != NULL && tls_io_instance->options.x509_cert != NULL) {
-#if CONFIG_ESP_AZURE_USE_SECURE_ELEMENT
+#if CONFIG_ESP_AZURE_USE_SECURE_ELEMENT && (ESP_IDF_VERSION > ESP_IDF_VERSION_VAL(4, 0, 0))
                             tls_io_instance->esp_tls_cfg.use_secure_element = true;
 #endif /* CONFIG_ESP_AZURE_USE_SECURE_ELEMENT */
                             tls_io_instance->esp_tls_cfg.clientcert_pem_buf = (unsigned char *)tls_io_instance->options.x509_cert;
@@ -334,6 +371,7 @@ static int tlsio_esp_tls_open_async(CONCRETE_IO_HANDLE tls_io,
 
                         tls_io_instance->tlsio_state = TLSIO_STATE_INIT;
                         result = 0;
+#endif
                     }
                 }
             }
