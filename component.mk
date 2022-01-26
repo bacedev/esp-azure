@@ -17,9 +17,9 @@ azure-iot-sdk-c/deps/parson \
 azure-iot-sdk-c/provisioning_client/inc \
 azure-iot-sdk-c/provisioning_client/adapters \
 azure-iot-sdk-c/provisioning_client/deps/utpm/inc \
+port/inc \
 
 COMPONENT_PRIV_INCLUDEDIRS := \
-port/inc \
 azure-iot-sdk-c/c-utility/pal/inc \
 azure-iot-sdk-c/c-utility/pal/freertos \
 azure-iot-sdk-c/c-utility/pal/generic \
@@ -38,6 +38,7 @@ azure-iot-sdk-c/c-utility/pal/tlsio_options.o \
 port/src/agenttime_esp.o \
 port/src/platform_esp.o \
 port/src/tlsio_esp_tls.o \
+port/src/azure_certificates.o \
 \
 azure-iot-sdk-c/c-utility/src/xlogging.o \
 azure-iot-sdk-c/c-utility/src/singlylinkedlist.o \
