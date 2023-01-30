@@ -5,4 +5,10 @@ menu "esp-azure"
         help
             Enable use secure element for TLS, depends on esp-cryptoauthlib
 
+    config DISABLE_AZURE_SDK_LOGGING
+        bool "Disable Azure SDK Logging"
+        default n
+        help
+            Disable Azure SDK Logging
+
 endmenu # esp-azure

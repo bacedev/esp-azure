@@ -144,3 +144,7 @@ component_compile_definitions (
 if (CONFIG_DEVICE_COMMON_NAME)
 	add_definitions(-DUSE_PROV_MODULE)
 endif()
+
+if (CONFIG_DISABLE_AZURE_SDK_LOGGING)
+	add_definitions(-DNO_LOGGING)
+endif()
