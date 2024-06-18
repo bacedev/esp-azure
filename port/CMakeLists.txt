@@ -133,6 +133,8 @@ component_compile_options (
 	-Wno-missing-braces
 	-Wno-missing-field-initializers
 	-Wno-unused-variable
+	-Wno-format
+	-Wno-array-parameter
 	)
 
 component_compile_definitions (
